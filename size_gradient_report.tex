@@ -1,0 +1,282 @@
+\documentclass[12pt,letterpaper]{article}
+
+% --- Blinding toggle ----------------------------------------------------
+% \blindtrue  produces an anonymized version for AJPS peer review (no
+% author/affiliation/email on title page).
+% \blindfalse produces the signed version for the GitHub replication
+% package and arXiv preprint.
+\newif\ifblind
+\blindfalse
+
+% Typography and layout
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{mathpazo}
+\usepackage[scaled=0.85]{berasans}
+\usepackage[scaled=0.85]{beramono}
+\usepackage{microtype}
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\doublespacing
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{threeparttable}
+\usepackage{siunitx}
+\sisetup{
+  table-format = -1.3,
+  detect-weight,
+  mode = text,
+}
+
+% Math and figures
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{placeins}
+
+% Colors and hyperlinks
+\usepackage{xcolor}
+\usepackage[colorlinks=true, linkcolor=blue!60!black, citecolor=blue!60!black, urlcolor=blue!60!black]{hyperref}
+\usepackage[round]{natbib}
+\setcitestyle{aysep={}}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+
+% -----------------------------------------------------------------------
+
+\title{Geographies of Discontent, A Reanalysis and Discussion}
+\ifblind
+  \author{}
+\else
+  \author{Jesse Frederik\\
+  \small De Correspondent\\
+  \small \href{mailto:jesse@decorrespondent.nl}{jesse@decorrespondent.nl}}
+\fi
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\begin{center}
+\small Word count: $\sim$3,150
+\end{center}
+
+\begin{abstract}
+\noindent \citet{cremaschi2024} report that a 2010 Italian municipal reform increased far-right vote share by 1.5 percentage points, using difference-in-differences around a population threshold. I show that this estimate reflects a time-varying size gradient---far-right support has grown faster in small municipalities---rather than a policy effect. The estimate attenuates to zero in narrow bands around the threshold, appears before the reform, arises at placebo population thresholds where no reform exists, and replicates in France where no comparable reform took place; adding flexible size-by-year controls eliminates it entirely. The proposed mechanism is also unsupported on its own terms: the reform was never systematically enforced and was abolished in 2024, compliance with the joint-service-delivery mandate was partial rather than universal, and where compliance did occur it produced no detectable shift in either service quality or far-right voting.
+\end{abstract}
+
+\newpage
+
+% =======================================================================
+\section{Introduction}
+
+\citet{cremaschi2024} study a 2010 Italian reform that required municipalities below 5,000 inhabitants (below 3,000 for designated mountain municipalities) to jointly manage public services with neighboring communes.\footnote{\textbf{AI disclosure.} This manuscript used Claude Opus 4.6 and 4.7 (Anthropic). The research questions, research design, choice of analyses, argument structure, discussion and conclusions are the author's own. Claude was used to (i) generate R code specified by the author; (ii) render the bias decomposition in Appendix~B into formal notation, following the mechanism specified by the author; (iii) provide suggestions to improve clarity of author-drafted prose. The author checked, rewrote and refined all generated code and text suggestions. All code and data collection were reviewed by the author and outputs verified against original replication materials where applicable; all derivations and final text were reviewed and approved by the author, who retains full responsibility for the manuscript.} Their identification strategy compares municipalities below these population cutoffs (treated) to those above (controls), before and after the reform, using difference-in-differences. They conclude that the reform increased far-right vote share by roughly 1.5 percentage points in the 2013 and 2018 general elections, relative to 2001--2008.
+
+Because treatment is assigned by a population cutoff, treated municipalities are systematically smaller than controls. Far-right support has grown faster in small municipalities since the early 2000s---a differential trend that a standard DID specification, even with municipality and year fixed effects, cannot absorb.
+
+Four anomalies confirm that this size gradient, not the reform, drives the estimate. The estimate attenuates to zero near the population threshold (Section~\ref{sec:attenuation}). A temporal placebo using only pre-reform data is significant (Section~\ref{sec:temporal_placebo}). The same specification produces significant estimates at placebo population thresholds where no reform exists (Section~\ref{sec:placebo_thresholds}). The identical pattern appears in France, where no comparable reform took place (Section~\ref{sec:france}). Controlling for size-specific time trends eliminates the treatment effect entirely (Section~\ref{sec:gradient_control}). A direct test of the proposed mechanism---comparing municipalities that actually complied with the mandate to similar ones that did not---finds no compliance effect either (Section~\ref{sec:mechanism}).
+
+\subsection{Data and methods}
+
+All analyses use the paper's electoral panel dataset (7,964 municipalities $\times$ 5 national elections: 2001, 2006, 2008, 2013, 2018), available through the Harvard Dataverse replication package, and the paper's own specifications. I extend the panel to include the September 2022 general election (7,506 matched municipalities; 458 dropped because their 2008 ISTAT codes have been retired since 2008, almost all of them small Sardinian comuni absorbed into successor municipalities).\footnote{Source: Italian Ministry of the Interior via the onData project's processed Eligendo files (\url{https://github.com/ondata/elezioni-politiche-2022}). Party classification follows \citet{cremaschi2024}: far-right = Fratelli d'Italia + Lega.} I also construct a parallel French panel (34,710 communes $\times$ 5 presidential elections: 2002, 2007, 2012, 2017, 2022) as a placebo country where no comparable reform exists (Appendix~A). Standard errors are clustered at the municipality level throughout.
+
+\textit{TWFE} (two-way fixed effects) regresses far-right vote share on a treatment indicator (treated $\times$ post) with municipality and year fixed effects \citep[see][for a recent overview of DID methods]{roth2023}. This is the paper's baseline estimator. The authors note that pre-trends differ between treated and control groups and therefore turn to two alternative estimators as their preferred specifications. \textit{MTWFE} \citep{ho2007} first matches treated municipalities to controls using Mahalanobis distance on pre-treatment covariates (population, demographics, income, education, altitude), then runs TWFE on the matched sample. \textit{SDID} \citep{arkhangelsky2021} reweights control units and pre-treatment periods to balance the treated group's pre-reform outcome trajectory. I replicate all three estimators and additionally use regression discontinuity \citep{calonico2014} to test for a jump in far-right support at the population threshold.
+
+% =======================================================================
+\section{Four Anomalies}
+\label{sec:anomalies}
+
+\subsection{The estimate attenuates near the population threshold}
+\label{sec:attenuation}
+
+If the reform caused the far-right shift, it should appear as a jump at the population threshold. The logic of a regression-discontinuity design is that municipalities just below 5,000 are nearly identical to those just above except for the treatment: comparing only them isolates the policy effect from confounding by size and any size-correlated characteristic. A genuine discontinuity at the cutoff should therefore become \textit{sharper}, not weaker, as the comparison narrows.
+
+Figure~\ref{fig:bandwidth_sweep} shows the opposite. The estimate sits near $0.015$ when most of the country is included in the control group, begins to fall once the bandwidth narrows below $\pm$5{,}000, and is indistinguishable from zero at bands of $\pm$2{,}000 or below.\footnote{The attenuation is not just widening standard errors: at 24 of the 27 bandwidths below $\pm$2,000, the upper 95\% CI lies strictly below the headline.} The headline estimate is generated by including municipalities far larger than those near the cutoff in the control group, not by any jump at the cutoff itself.\footnote{Running the sweep separately for non-mountain communes (cutoff 5,000) and mountain communes (cutoff 3,000) produces the same attenuation pattern in each group: full-sample estimates of $+0.016$ and $+0.011$ respectively, falling to mean narrow-band ($\pm$200 to $\pm$2,000) estimates of $+0.006$ and $+0.003$. The pooled-threshold figure is not generating the pattern by averaging two structurally different local comparisons.}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=\textwidth]{output/figures/italy/fig_bandwidth_sweep.pdf}
+  \caption{TWFE estimate of the reform effect as a function of the population bandwidth around each municipality's own threshold (5,000 for non-mountain, 3,000 for mountain), on a log scale. Each point is a separate TWFE regression of far-right vote share on $\text{treated} \times \text{post}$ with municipality and year fixed effects and standard errors clustered by municipality. Shaded region is the 95\% confidence interval at each bandwidth. The horizontal red dotted line marks the full-sample (headline) estimate of $0.015$; the vertical red dotted line marks the MSE-optimal RD bandwidth ($\pm$1,420 inhabitants) selected by \texttt{rdrobust}. At 24 of the 27 narrow-band bandwidths below $\pm$2,000, the upper 95\% CI lies strictly below the headline.}
+  \label{fig:bandwidth_sweep}
+\end{figure}
+
+A more formal test uses regression discontinuity \citep[implemented via \texttt{rdrobust};][]{calonico2014}, which fits separate local regressions on each side of the 5,000 threshold and tests whether far-right vote share jumps at the cutoff. The method selects the range of municipalities to include automatically (here $\pm$1,420 inhabitants, $N = 1{,}792$). The pooled estimate---one observation per municipality, with the outcome equal to the post-2010 mean far-right share minus the pre-2008 mean (a diff-in-disc)---is $+0.005$ ($p = 0.17$): same direction as the headline but a third of the size and statistically indistinguishable from zero. Running the same test separately on the cross-section in each election year confirms the null in all three post-reform elections: 2013 ($-0.006$, $p = 0.52$), 2018 ($+0.008$, $p = 0.54$), and 2022 ($+0.004$, $p = 0.76$). A McCrary density test \citep{cattaneo2020}, which checks whether municipalities cluster suspiciously on one side of the threshold, finds no manipulation of the running variable ($T = -0.22$, $p = 0.83$); the local comparison fails not because of sorting but because of a continuous, time-varying size gradient.
+
+\FloatBarrier
+\subsection{The estimate appears before the reform and keeps growing after it}
+\label{sec:temporal_placebo}
+
+Table~\ref{tab:temporal} applies the paper's specification using alternative break years, an extended sample window, and a post-reform placebo. Pre-reform placebos are significant: using 2006 as the break year yields $0.009$ ($p < 0.001$), and using 2001 yields $0.005$ ($p < 0.001$). The ``treatment effect'' was present before the reform existed. The estimates grow in roughly equal increments across break years (0.005, 0.009, 0.015, 0.020), consistent with a steadily steepening trend rather than a discontinuity at 2010. The authors themselves flag this problem, noting that ``a strict causal interpretation may not be warranted given that the pre-trends of the control and treatment groups are different'' (p.~1590), and turn to MTWFE and SDID as preferred estimators. Extending the panel to include the 2022 general election increases the estimate by one-third (from 0.015 to 0.020).
+
+\input{output/tables/italy/tab_temporal}
+
+\FloatBarrier
+\subsection{Placebo thresholds produce estimates of similar magnitude}
+\label{sec:placebo_thresholds}
+
+If the reform at 5,000 caused the far-right shift, the estimate should peak at that cutoff---a local maximum at 5,000, with smaller estimates at nearby thresholds where the placebo dummy splits reform-treated municipalities across both sides. Figure~\ref{fig:placebo_sweep} shows nothing of the kind: across twenty thresholds from 1,000 to 50,000, the estimate at 5,000 does not stand out from its neighbors, and the TWFE and MTWFE estimates grow monotonically with the cutoff.
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=\textwidth]{output/figures/italy/fig_placebo_sweep.pdf}
+  \caption{Placebo threshold estimates across all three estimators, on a log-scale population grid. Each point is a separate estimation at the indicated cutoff. TWFE: municipality and year FE, clustered SEs. MTWFE: Mahalanobis matching with replacement on pre-treatment covariates. SDID: \citet{arkhangelsky2021}, jackknife SEs. Shaded regions are 95\% confidence intervals. The dotted vertical line marks the actual reform threshold (5{,}000); the treatment definition uses the dual threshold (5{,}000/3{,}000) only at that cutoff.}
+  \label{fig:placebo_sweep}
+\end{figure}
+
+The pattern survives an even stronger placebo. Dropping every municipality below 5,000 leaves 2,420 untreated municipalities; running the same sweep on this subsample still produces a significant estimate ($p < 0.001$) at every threshold from 7,000 to 30,000, with the same population-gap proportionality. The estimator cannot be picking up a reform effect in a sample that contains no reform-treated units.
+
+\FloatBarrier
+\subsection{The same pattern appears in France, where no reform exists}
+\label{sec:france}
+
+If the estimator is picking up a genuine Italian policy effect, applying it in a country with no comparable reform should produce null results. I test this using French presidential elections (2002--2022, 34,710 communes; details in Appendix~A, with an institutional comparison of the three relevant French laws in~A.1).
+
+At a 5,000-inhabitant cutoff, the French TWFE yields $0.039$ ($p < 0.001$)---larger than the Italian estimate. The estimate attenuates in narrow bands around any cutoff and grows with the cutoff itself, just as in Italy (Figures~\ref{fig:bandwidth_sweep_fr} and~\ref{fig:placebo_sweep_fr}).\footnote{France passed a major local-government reform in December 2010 (Loi RCT) that mandated membership in an \textit{\'etablissement public de coop\'eration intercommunale} (EPCI, an inter-municipal cooperation body grouping neighboring communes) for all communes, with a minimum aggregate population of 5,000 for the EPCI itself. The 5,000 threshold applies to the EPCI as a whole, not the individual commune, so it does not create a sharp treatment at commune-population $= 5{,}000$. The sign of any plausible commune-size mechanism also runs the wrong way: smaller communes are \textit{more} likely to be effectively treated by the mandate, since the 5,000-aggregate requirement binds them harder (a 200-inhabitant commune cannot satisfy it alone, a 30,000-inhabitant commune already does). This would predict estimates that grow as the cutoff is lowered---but the data show the opposite (estimates grow \textit{with} the cutoff) and attenuate to zero in narrow bands around every cutoff.}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=\textwidth]{output/figures/france/fig_bandwidth_sweep_fr.pdf}
+  \caption{France: TWFE estimate as a function of population bandwidth around the 5,000-inhabitant placebo cutoff, on a log scale. Each point is a separate TWFE regression of far-right vote share on $\text{treated} \times \text{post}$ with commune and year fixed effects and standard errors clustered by commune. Pre $= \{2002, 2007\}$, post $= \{2012, 2017, 2022\}$. Shaded region is the 95\% confidence interval.}
+  \label{fig:bandwidth_sweep_fr}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=\textwidth]{output/figures/france/fig_placebo_sweep_fr.pdf}
+  \caption{France: TWFE estimate at placebo population thresholds from 1,000 to 50,000, on a log scale. Each point is a separate estimation at the indicated cutoff. Same specification, pre/post window, and clustering as Figure~\ref{fig:bandwidth_sweep_fr}. Shaded region is the 95\% confidence interval.}
+  \label{fig:placebo_sweep_fr}
+\end{figure}
+
+\FloatBarrier
+% =======================================================================
+\section{A Unifying Explanation}
+
+These four anomalies are consistent with a single explanation: far-right support has been growing faster in small municipalities than in large ones, and because treatment is assigned by population, the DID cannot distinguish a reform effect from this differential trend. Figures~\ref{fig:gradient} and~\ref{fig:gradient_fr} show this size gradient---the relationship between far-right vote share and municipality population---for Italy and France.
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=\textwidth]{output/figures/italy/fig_logpop_facet.pdf}
+  \caption{Far-right vote share versus municipality population by election year (Italy). Each point is a population-percentile bin mean. The dashed vertical line marks the 5,000-inhabitant reform threshold.}
+  \label{fig:gradient}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=\textwidth]{output/figures/france/fig_logpop_facet_fr.pdf}
+  \caption{Far-right vote share versus commune population by election year (France, 2002--2022). Each point is a population-percentile bin mean. No French reform comparable to Italy's 2010 service-consolidation mandate exists.}
+  \label{fig:gradient_fr}
+\end{figure}
+
+Municipality and year fixed effects absorb permanent place differences and election-wide shocks, but neither absorbs a size gradient that steepens over time. Because treatment is assigned by population, the DID cannot distinguish the reform from this trend; Appendix~B shows formally that the spurious component equals the rate at which the gradient steepens times the population gap between ``treated'' and ``control'' groups, so the bias grows mechanically with the cutoff, and empirically with the passage of time as the gradient continues to steepen.
+
+Figure~\ref{fig:scatter} confirms the formula directly. Across 197 placebo cutoffs the DID estimate is a near-perfect linear function of the log-population gap between control and treated groups ($R^2 = 0.92$). At the actual reform threshold of 5,000, the fitted line predicts a spurious DID of 0.017---within 7\% of the observed 0.015. The headline estimate is what the size-gradient mechanism alone would produce.
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{output/figures/italy/placebo_scatter.pdf}
+  \caption{DID estimate as a function of the mean log-population gap between control and treated groups, across 197 placebo cutoffs from 1,000 to 50,000 (in steps of 250 inhabitants). Each grey point is a separate TWFE regression at the indicated cutoff. The red marker is the actual reform threshold (5,000). The dashed line is the OLS fit: $\widehat{\text{DID}} = 0.0046 + 0.0057 \times \text{log-pop gap}$, slope SE $= 0.0001$, $R^2 = 0.92$. The formula predicts a DID of 0.0166 at the 5,000 cutoff (observed: 0.0154).}
+  \label{fig:scatter}
+\end{figure}
+
+Matching and synthetic-control approaches do not escape the problem (Appendix~B.1). MTWFE \citep{ho2007} matches treated municipalities to controls on pre-treatment covariates including population, narrowing the mean population gap from 16,250 to 4,552 inhabitants---but it cannot close it. By construction, every treated unit lies below 5,000 and every control above.
+
+SDID \citep{arkhangelsky2021} balances on a different target: pre-period \textit{outcomes} rather than covariates. It chooses unit and time weights so that the weighted control trajectory matches the treated trajectory before treatment. If the relationship between population and far-right vote share were constant over time, matching pre-period outcomes would also balance population, and SDID would be unbiased. But the relationship is not constant---it steepens---so weights chosen to match the pre-period no longer match the post-period, and balancing population directly is once again ruled out by the cutoff. Empirically, SDID's unit weights close less than 1\% of the population gap at every placebo cutoff. SDID's estimate is nonetheless roughly flat across cutoffs---not because the gap shrinks, but because SDID's \textit{time} weights neutralise the other factor in the bias formula (the difference between the post-period gradient and a time-weighted pre-period gradient; Appendix~B), so the growing population gap is multiplied by a number close to zero at every cutoff. The protection is partial: SDID at 5,000 yields $+0.014$, essentially indistinguishable from TWFE.
+\subsection{Controlling for the gradient}
+\label{sec:gradient_control}
+
+The simplest test of the two hypotheses is to add a flexible size control to the paper's TWFE specification and see whether the headline estimate survives. It does not (Table~\ref{tab:gradient}): adding $\log(\text{pop}) \times \text{year}$ interactions drops the estimate from $+0.015$ to $-0.000$ ($p = 0.76$), and the same control eliminates the estimate at every placebo cutoff from 2,000 to 50,000. It also reverses the matched MTWFE estimate from $+0.004$ to $-0.007$ ($p < 0.01$): matching reduces the population gap but cannot close it, so residual size variation still correlates with the post-period trend.
+
+A sharper formulation puts both hypotheses in the same regression: a $\text{below-5{,}000} \times \text{post}$ dummy (the discontinuity) alongside the full set of $\log(\text{pop}) \times \text{year}$ interactions (the gradient). Once the gradient is in the model, the discontinuity dummy is zero ($F = 0.08$, $p = 0.78$)---knowing whether a municipality lies above or below 5,000 adds nothing to what its population and the year already supply. The gradient terms, by contrast, remain strongly non-zero with the dummy included ($F = 63.5$, $p < 2 \times 10^{-16}$). AIC and BIC both prefer the gradient-only specification.
+
+\input{output/tables/italy/tab_gradient}
+
+A natural objection is that $\log(\text{pop}) \times \text{year}$ is bad control: if the reform itself operated through a size-correlated channel---smaller treated municipalities reshaped more by the mandate---then the gradient terms would absorb the true effect along with the confound. The objection requires the gradient to be downstream of the 2010 reform. It is not. The same gradient pattern appears in the pre-reform temporal placebo (Table~\ref{tab:temporal}, $p < 0.001$ for both the 2001 and 2006 break years), in France where no comparable reform exists (Section~\ref{sec:france}), and in the never-treated subsample (Section~\ref{sec:placebo_thresholds}). A direct triple-interaction test pinpoints the issue: regressing far-right share on the DID treatment, the year-by-year size gradient, and a $\text{treated} \times \text{post} \times \log(\text{pop})$ interaction yields a coefficient on the triple term of $+0.0000$ (SE $0.0012$, $p = 0.97$). The gradient steepens identically in treated and control communes post-reform; the reform did not differentially steepen it. The bad-control critique would have to explain how a 2010 reform produces variation in samples that pre-date it, that lie outside it, that exclude every treated unit, and that exhibit no differential steepening among the treated.
+
+% =======================================================================
+\section{A direct test of the mechanism}
+\label{sec:mechanism}
+
+The size-gradient critique above does not directly engage \citet{cremaschi2024}'s proposed mechanism: that the 2010 reform reduced the local responsiveness of public administration in small municipalities, provoking a far-right backlash. The mechanism requires three things to be true---the reform changed how small municipalities deliver public services, that change degraded the services, and the affected municipalities moved further right than similar non-affected ones. The remainder of this section works through each.
+
+\subsection{Was the reform implemented?}
+\label{sec:was_reform_implemented}
+
+Article 14 of \citet{dl782010} (published 31 May 2010) required municipalities below 5,000 inhabitants (3,000 for designated mountain municipalities) to deliver ten ``fundamental functions'' jointly with neighbouring municipalities: police, waste, social services, territorial planning, road maintenance, civil registry, tax collection, education, civil defence, and IT. Compliance could take the form of a formal \textit{unione di comuni} or a less binding inter-municipal agreement (\textit{convenzione}). Implementation was statutory rather than voluntary.
+
+In practice, the deadline was postponed at least twelve times between 2013 and 2024, no sanction was ever applied to a non-complying municipality, the Constitutional Court declared the rigid mandate partially unconstitutional \citep{sentenza332019}, and Article 21 of \citet{dl2022024} abolished it. The Conferenza Stato-Citt\`a states that ``the obligation for associated exercise of all fundamental functions of small municipalities never entered into force'' \citep{conferenzastatocitta}; \citet{diielsi2022}, writing from inside SOSE, confirm that the mandatory associated exercise ``never actually materialized.''
+
+Cremaschi et al.\ do not engage with any of this. They seem to claim near-universal compliance---``200 (2.51\%) of the affected municipalities \ldots merged, 1{,}562 (19.61\%) formed a new union, and the rest adopted a convention'' (p.~12)---but offer no source for the residual 78\% and themselves acknowledge that ``systematic data is not available for conventions'' (online appendix, p.~5). Section~\ref{sec:descriptive_compliance} examines whether the available data supports the universal-compliance claim.
+
+\subsection{Did sub-threshold municipalities use shared service delivery more than above-threshold ones?}
+\label{sec:descriptive_compliance}
+
+The reform allowed three compliance vehicles: municipal mergers (rare), formal \textit{unioni di comuni}, and \textit{convenzioni}---inter-municipal agreements for joint provision \citep[appendix~p.~5]{cremaschi2024}. Only \textit{unioni} appear in the Ministry of the Interior's registry \citep{ministerounioni2020}; the OpenCivitas database records associated delivery under either vehicle.
+
+For \textit{unioni}, the Ministry registry permits a time-series view of the treatment effect. Figure~\ref{fig:union_formation_did} plots cumulative membership and annual new-formation rates separately for sub- and above-threshold municipalities. Sub-threshold membership rises from $18.6\%$ in 2009 to $42.6\%$ in 2018 ($\Delta = +24.0$ pp). Above-threshold membership rises from $13.3\%$ to $27.0\%$ ($\Delta = +13.7$ pp). The implied DID is $+10.2$ pp---non-zero, but more than half of the sub-threshold rise would have occurred anyway under the counterfactual of the above-threshold trend.\footnote{The 2020 registry contains only surviving \textit{unioni}, so pre-2010 \textit{unioni} that dissolved before 2020 are missing, which biases the cumulative series toward more recent formations.}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth]{output/figures/italy/fig_union_formation_did.pdf}
+  \caption{\textit{Unione di comuni} formation over time, sub-threshold (Cremaschi-treated) vs.\ above-threshold municipalities. Top: cumulative share in any active \textit{unione} as of year $y$. Bottom: share forming a new \textit{unione} in year $y$. Source: \citet{ministerounioni2020}.}
+  \label{fig:union_formation_did}
+\end{figure}
+
+Membership in an \textit{unione} does not by itself imply joint delivery. \citet{spano2018} examine official cost data for 384 municipalities across 54 \textit{unioni} in three regions, treating disappearance of a municipality's expenditure on a function---with continued joint delivery---as evidence the function was actually transferred. Only 11 of the 384 (under 3\%) met this test for any function in 2013--2015, leading them to conclude that ``the transfer of functions from Italian municipalities to a \textit{Unione} for a joint service delivery has been irrelevant so far'' \citep[p.~9]{spano2018}.
+
+The OpenCivitas function-level flags offer a looser, self-reported measure of the same question. The two sources are not directly comparable: \citet{spano2018} apply a strict budgetary test (the municipality's own expenditure line for a function must disappear), whereas OpenCivitas captures whether the municipality reports delivering a function in associated form---a much weaker bar that does not require the function to have been formally transferred. The OpenCivitas flags are drawn from the annual \textit{Fabbisogni Standard} questionnaires that municipalities are required to file with SOSE, the Italian government agency that produces standard-needs estimates for municipal financing. For each fundamental function, the questionnaire asks whether the function is delivered in associated form with neighbouring municipalities, capturing both \textit{unione} and \textit{convenzione} arrangements. The variables we use are a 2015 snapshot, so they describe the post-reform state only and cannot identify a pre/post change in joint delivery. Figure~\ref{fig:compliance_gradient} plots the share of municipalities with associated delivery against population for nine compliance measures: post-2010 \textit{unione} membership and each of the eight Article~14 fundamental functions delivered in associated form in 2015.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth]{output/figures/italy/fig_compliance_gradient_no_rd.pdf}
+  \caption{Share of municipalities with associated service delivery by distance to the legal population threshold. Points are percentile-bin means. The horizontal axis is $\log(\text{pop}\,/\,\text{threshold})$, pooling 5{,}000-inhabitant (non-mountain) and 3{,}000-inhabitant (mountain) thresholds at $x = 0$.}
+  \label{fig:compliance_gradient}
+\end{figure}
+
+For sub-threshold municipalities, associated delivery reaches roughly 70\% for social services, 55\% for garbage and education, 35\% for local police, 25\% for post-2010 \textit{unione} membership and territorial planning, and only about 10\% for civil registry, road maintenance, and tax collection.
+
+More strikingly, the bin means trace a continuous pattern through the legal threshold in every panel: there is no visible jump in compliance behaviour at $x = 0$. Where there is a gradient, it runs through the cutoff continuously; where compliance is nearly flat, it remains so on both sides.\footnote{Formal local-linear RD tests at the threshold confirm the visual reading: eight of the nine compliance indicators yield discontinuity estimates indistinguishable from zero, and the lone $p < 0.05$ result (local police, $-0.110$) does not survive Bonferroni for nine tests. See Appendix~C.} Service-sharing follows a continuous gradient through the size distribution, not a sharp policy discontinuity at the legal threshold.
+
+\subsection{Did it worsen public service delivery?}
+\label{sec:service_delivery}
+
+The mechanism's second link requires that the reform, where it was applied, degraded service delivery. \citet{cremaschi2024} report the reform's effect on three services---local police, public registry, garbage collection---noting that for the others ``missing data and coding issues constrain the analysis'' and that public-transport coverage is missing for 95\% of municipalities (online appendix, p.~15). Their main-text Table~3 reports MTWFE estimates of $-0.196$ ($\text{SE}=0.047$) for police, $-0.157$ ($\text{SE}=0.080$) for registry, and $-0.076$ ($\text{SE}=0.036$) for garbage---all in standard-deviation units of the ``Services Against Standard Demand'' outcome, all statistically significant. The paper reads these as evidence that the reform reduced public-service provision in affected municipalities. Note that Cremaschi et al.'s Table~3 compares 2013 to 2009, but the bulk of post-reform \textit{unione} formation among sub-threshold municipalities did not occur until 2014 (Figure~\ref{fig:union_formation_did}). The service-quality decline they detect predates most of the compliance through which their mechanism is supposed to operate.
+
+These estimates are themselves vulnerable to the size-gradient confound documented in Section~2 for the political outcome. I reproduce \citet{cremaschi2024}'s Table~3 estimates exactly using their replication data and matching specification, and then plot the muni-level change in their standardized service-output measure between 2009 and 2013 against distance from the legal threshold (Figure~\ref{fig:service_delta}). The change is a smooth function of population in all three services. Sub-threshold municipalities did experience worse trajectories than above-threshold municipalities for police and registry capacity---but the divergence is operating continuously across the size distribution, with no jump at the legal cutoff. RD estimates of the threshold discontinuity in the change are $-0.078$ ($\text{SE} = 0.077$) for police, $-0.018$ ($\text{SE} = 0.096$) for registry, and $+0.091$ ($\text{SE} = 0.079$) for garbage---all statistically indistinguishable from zero. The RD point estimates alone do not falsify the published MTWFE values: minimum detectable effects at 80\% power (0.22, 0.27, 0.22 SD) exceed the published estimates in absolute value. The smooth-gradient evidence in Figure~\ref{fig:service_delta} does the falsifying instead: a continuous function of population with no discontinuity at the threshold is incompatible with a sharp policy effect operating at 5,000 inhabitants regardless of statistical power.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth]{output/figures/italy/fig_service_diff_delta_no_rd.pdf}
+  \caption{Muni-level change in standardized ``Services Against Standard Demand'' (2013 minus 2009) by distance to the legal threshold. Each point is a percentile-bin mean. Axis as in Figure~\ref{fig:compliance_gradient}. Outcome, sample, and standardization mirror \citet{cremaschi2024}'s Table~3.}
+  \label{fig:service_delta}
+\end{figure}
+
+It is not obvious that joint service delivery would degrade services in any case---the stated goal of the reform was to improve them by eliminating duplication, and the academic literature on Italian inter-municipal cooperation finds no consistent evidence of service-quality decline \citep{ferraresi2018, gori2025, luca2021}.
+
+\subsection{From intent-to-treat to treatment-on-the-treated}
+\label{sec:compliance_test}
+
+Sections~\ref{sec:was_reform_implemented}--\ref{sec:service_delivery} establish that the 2010 reform was at most a partial treatment. Cremaschi et al.'s 1.5-percentage-point effect is therefore an intent-to-treat (ITT) estimate, averaging compliers and non-compliers; the policy-relevant treatment-on-the-treated (ATT) parameter must, under partial compliance, be substantially larger \citep{angrist1996}. I test this directly within the Cremaschi-treated stratum: compliers are matched to non-compliers using the same Mahalanobis matching specification on the seven pre-reform covariates Cremaschi et al.\ themselves use, and TWFE is run on the matched sample. I do this for three aggregate compliance measures---post-2010 \textit{unione} membership from the Ministry registry (formation-date stamped, so a municipality's status is fixed at the date it joined an \textit{unione}, not retroactively), plus two OpenCivitas indicators dichotomising the count of Article~14 fundamental functions shared in 2015---and, separately, for each of the eight Article~14 fundamental functions in isolation.\footnote{The OpenCivitas 2015 snapshot is post-treatment for the 2013 electoral wave, so OpenCivitas-based ATTs are suggestive rather than fully causal. The Ministry registry is time-stamped to \textit{unione} formation date and is the cleaner anchor; the two measures yield aggregate ATTs within a thousandth of zero of each other (Table~\ref{tab:compliance_three}).}
+
+\input{output/tables/italy/tab_compliance_three}
+
+The matched ATTs are essentially zero in aggregate (Table~\ref{tab:compliance_three}). The three aggregate estimates sit within a thousandth of zero, and six of the eight single-function rows fall in the same $|\hat\tau| \leq 0.002$ band. The two exceptions---sharing local police ($+0.006$, $t = 3.55$) and sharing waste collection ($-0.008$, $t = -4.14$)---survive a Bonferroni correction but run in opposite directions. A joint Wald test rejects the null that all eight ATTs equal zero ($F(8, 3813) = 4.13$, $p < 0.001$), but the rejection is driven entirely by these two opposite-sign effects, consistent with function-specific heterogeneity rather than a single mechanism in which associated delivery shifts the far-right vote.
+
+Under the standard LATE decomposition \citep{angrist1996}, $\text{ITT} = \pi \cdot \text{ATT}$ where $\pi$ is the compliance rate. Observed compliance rates across the OpenCivitas measures range from 25\% to 70\% (Section~\ref{sec:was_reform_implemented}), so for a causal ITT of 1.5 pp the implied ATT would be 2.1--6.0 pp. The measured aggregate ATTs of $\approx 0$ are not compatible with that range. The arithmetic permits three resolutions: (a) the headline ITT is itself spurious, the paper's thesis; (b) the exclusion restriction fails---compliance correlates with vote share through some channel other than the reform; or (c) treatment effects are heterogeneous with opposite signs across compliance types in a way that exactly cancels in aggregate. The single-function pattern in Table~\ref{tab:compliance_three} weakly favours (a) over (c), since the only two non-negligible effects move in opposite directions.
+
+\FloatBarrier
+% =======================================================================
+\section{Conclusion}
+
+The 2010 reform did not detectably increase far-right vote share. The headline estimate captures a pre-existing size gradient, not a policy effect: the same pattern appears before the reform, at placebo population thresholds, and in France where no comparable reform exists. The proposed mechanism fails on its own terms too: the mandate was never systematically enforced and was abolished in 2024, compliance was partial at best, matched compliers within the treated stratum show no aggregate ATT and no consistent single-function ATT, and the published service-quality effects shrink to a fraction of their size and turn null under RD at the threshold. To sustain a causal interpretation, one would need to explain why the result vanishes with flexible size controls, why the estimate attenuates to zero in narrow bands around the threshold, and why actual compliers behave like similar non-compliers.
+
+% Appendices moved to size_gradient_report_appendix.tex (Online Supporting Information)
+
+\bibliographystyle{apalike}
+\bibliography{references}
+
+\end{document}

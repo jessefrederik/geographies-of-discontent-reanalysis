@@ -1,0 +1,220 @@
+\documentclass[12pt,letterpaper]{article}
+
+% --- Blinding toggle (mirror main paper) --------------------------------
+\newif\ifblind
+\blindfalse
+
+% Typography and layout
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{mathpazo}
+\usepackage[scaled=0.85]{berasans}
+\usepackage[scaled=0.85]{beramono}
+\usepackage{microtype}
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\doublespacing
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{threeparttable}
+\usepackage{siunitx}
+\sisetup{
+  table-format = -1.3,
+  detect-weight,
+  mode = text,
+}
+
+% Math and figures
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{placeins}
+
+% Colors and hyperlinks
+\usepackage{xcolor}
+\usepackage[colorlinks=true, linkcolor=blue!60!black, citecolor=blue!60!black, urlcolor=blue!60!black]{hyperref}
+\usepackage[round]{natbib}
+\setcitestyle{aysep={}}
+
+% Section formatting: Appendix uses "A", "B" style numbering
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+\renewcommand{\thesection}{\Alph{section}}
+\renewcommand{\thesubsection}{\Alph{section}.\arabic{subsection}}
+\renewcommand{\thetable}{A.\arabic{table}}
+\renewcommand{\thefigure}{A.\arabic{figure}}
+\renewcommand{\theequation}{A.\arabic{equation}}
+
+% -----------------------------------------------------------------------
+
+\title{Appendix for\\
+``Geographies of Discontent, A Reanalysis and Discussion''}
+\ifblind
+  \author{}
+\else
+  \author{Jesse Frederik\\
+  \small De Correspondent\\
+  \small \href{mailto:jesse@decorrespondent.nl}{jesse@decorrespondent.nl}}
+\fi
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\tableofcontents
+\newpage
+
+% =======================================================================
+\section{France placebo: data, design, and institutional context}
+\label{app:france_data}
+
+\subsection{Why French commune-level thresholds at 5{,}000 are clean placebos}
+\label{app:france_institutional}
+
+The French placebo's validity rests on the absence of any French reform that creates a treatment-control contrast at the 5{,}000-inhabitant commune-level cutoff during the 2002--2022 window. Three pieces of legislation could in principle pose such a contrast, and all three operate at the \textit{établissement public de coopération intercommunale} (EPCI, intercommunal grouping) level rather than the commune level.
+
+The \textit{loi Chev\`enement} (\textit{Loi n}$^{\circ}$ 99-586 du 12 juillet 1999) restructured intercommunalit\'e, introducing the \textit{communaut\'e d'agglom\'eration} (minimum 50{,}000 inhabitants in the grouping, anchored on at least one commune over 15{,}000) and the \textit{communaut\'e urbaine} (minimum 500{,}000 in the grouping). Its \textit{communaut\'e de communes} category---the form covering most rural areas---imposed no minimum population. None of these thresholds attaches a differential obligation to communes crossing 5{,}000 inhabitants individually.
+
+The \textit{loi de r\'eforme des collectivit\'es territoriales} (\textit{Loi n}$^{\circ}$ 2010-1563 du 16 d\'ecembre 2010, ``loi RCT'') made EPCI membership universal: every commune must belong to an EPCI of at least 5{,}000 inhabitants. The 5{,}000 floor here applies to the EPCI's \emph{total} population summed across its constituent communes, not to any single commune. A commune of 1{,}000 inhabitants belonging to an EPCI totalling 8{,}000 faces the same legal regime as a commune of 6{,}000 inhabitants in the same EPCI; the running variable for the placebo (own-commune population) does not align with this French rule.
+
+The \textit{loi NOTRe} (\textit{Loi n}$^{\circ}$ 2015-991 du 7 ao\^ut 2015) raised the EPCI floor from 5{,}000 to 15{,}000 inhabitants, with derogations to a 5{,}000 floor for mountain communes, island communes, and EPCI in zones of low population density. These derogations preserve the 5{,}000 figure but again at the EPCI level, never at the commune level. The number of EPCI fell from 2{,}062 to 1{,}266 between 2016 and 2017 in consequence---but again, this changes which EPCI a commune belongs to, not what the commune itself is obliged to provide.
+
+None of the three laws creates a sharp obligation that activates when a commune individually crosses 5{,}000 inhabitants. The French DID running variable (own-commune \textit{populations l\'egales} 2006) is therefore orthogonal to the legal regime under any of these laws, and the placebo can be interpreted as a clean test of the design's behaviour in the absence of any reform.
+
+\subsection{Data and design}
+
+I use first-round presidential election results for 2002, 2007, 2012, 2017, and~2022, obtained from the data.gouv.fr aggregated elections dataset (Minist\`ere de l'Int\'erieur). Polling-station results are aggregated to the commune level. The outcome is far-right vote share: votes for Le Pen (FN/RN) and M\'egret (MNR, 2002) and Zemmour (Reconqu\^ete, 2022) divided by valid votes. Commune codes are harmonized to the 2026 Code Officiel G\'eographique (current edition) using the INSEE commune movements table. The panel covers 34,710 metropolitan communes observed in all five elections.
+
+Population is fixed at the 2006 census (populations l\'egales), before the post period. The design mirrors the Italian specification: treatment is $\mathbf{1}(\text{pop}_{\text{2006}} < \text{cutoff})$, with pre $= \{2002, 2007\}$ and post $= \{2012, 2017, 2022\}$. As established in Section~A.1 above, no French public-service reform creates a commune-level discontinuity at any population threshold during this period.
+
+Every anomaly documented for Italy replicates in France. Tables~4 and~5 of the main paper show the narrow-band attenuation and placebo-threshold results. Table~\ref{tab:temporal_fr} below shows that the pre-period placebo (2002 vs.\ 2007) is significant, and a late-break placebo (pre = 2002--2012, post = 2017--2022) produces an even larger estimate. Figure~\ref{fig:scatter_fr} shows the DID estimate is proportional to the log-population gap across thresholds ($R^2 = 0.96$).
+
+\input{output/tables/france/tab_temporal_fr}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{output/figures/france/placebo_scatter_fr.pdf}
+  \caption{DID estimate versus mean log-population gap (control $-$ treated) at 197 placebo thresholds in France (2002--2022). Each point is a separate TWFE regression. The dashed line is the OLS fit ($R^2 = 0.96$).}
+  \label{fig:scatter_fr}
+\end{figure}
+
+\FloatBarrier
+
+% =======================================================================
+\section{Formal decomposition of the DID coefficient}
+\label{app:decomp}
+
+Consider the following data-generating process for far-right vote share:
+%
+\begin{equation}
+  Y_{it} = \alpha_i + \gamma_t + \delta_t \cdot f(\text{pop}_i) + \varepsilon_{it},
+  \label{eq:dgp_app}
+\end{equation}
+%
+where $Y_{it}$ is far-right vote share in municipality $i$ in election $t$, $\alpha_i$ is a municipality fixed effect, $\gamma_t$ is a year fixed effect, $\text{pop}_i$ is municipality population (fixed at the pre-reform census), $f(\cdot)$ is a monotone function of population, and $\delta_t$ is the slope of the size gradient in election $t$. The decomposition below does not depend on the choice of $f$; I use $f = \log$ throughout as a convenient parametric choice, and Table~6 of the main paper shows that a nonparametric alternative (population percentile rank $\times$ year) yields the same conclusions.
+
+The key feature is that the size gradient changes over time: Figure~1 of the main paper shows the slope steepening from near-zero in 2001 to sharply negative by 2018.
+
+The paper estimates a standard DID specification that omits the size-gradient term:
+%
+\begin{equation}
+  Y_{it} = \alpha_i + \gamma_t + \beta \cdot T_i \times \text{Post}_t + \varepsilon_{it},
+  \label{eq:did_app}
+\end{equation}
+%
+where $T_i = \mathbf{1}(\text{pop}_i < c)$ equals one for municipalities below the population cutoff $c$ and $\text{Post}_t$ equals one for elections after the reform. The coefficient $\beta$ is the estimated treatment effect.
+
+In a two-period setup with one pre-reform and one post-reform election, the DID estimand is:
+%
+\begin{align}
+  \beta^{\text{DID}} &= \bigl(\bar{Y}_{T=1,\text{post}} - \bar{Y}_{T=1,\text{pre}}\bigr) - \bigl(\bar{Y}_{T=0,\text{post}} - \bar{Y}_{T=0,\text{pre}}\bigr). \label{eq:did_def}
+\end{align}
+%
+Under~\eqref{eq:dgp_app}, the municipality fixed effects $\alpha_i$ cancel in the first differences (pre vs.\ post within each group), and the year fixed effects $\gamma_t$ cancel in the second difference (treated vs.\ control):
+%
+\begin{align}
+  \beta^{\text{DID}} &= \underbrace{(\delta_{\text{post}} - \delta_{\text{pre}})}_{\text{gradient change}} \;\cdot\; \underbrace{(\overline{f(\text{pop})}_{T=1} - \overline{f(\text{pop})}_{T=0})}_{\text{size gap}}.
+  \label{eq:decomp_app}
+\end{align}
+%
+The first term is how much the size gradient steepened between the pre- and post-reform periods. The second is the difference in mean $f(\text{pop})$ between treated municipalities (below the cutoff, smaller) and control municipalities (above it, larger). For any monotonically increasing $f$, treated municipalities have lower $f(\text{pop})$ than controls, so the size gap is negative. Whenever the gradient steepens ($\delta_{\text{post}} < \delta_{\text{pre}}$), both factors are negative, and their product yields a positive $\beta^{\text{DID}}$---even without any reform effect. The two-period case illustrates the mechanism; in the multi-period TWFE, the estimand is a variance-weighted average of period-specific comparisons \citep{goodmanbacon2021}, each contaminated by the same gradient term.
+
+This decomposition generates several testable predictions, none of which depend on the choice of $f$:
+\begin{enumerate}
+  \item \textit{Placebo thresholds should produce nonzero estimates}, because different cutoffs create different size gaps. Higher thresholds create larger gaps and should produce larger estimates.
+  \item \textit{Estimates should attenuate in narrow bands}, because municipalities just above and just below any cutoff are similar in size, shrinking the size gap toward zero.
+  \item \textit{Adding $f(\text{pop}) \times$ year controls should eliminate the spurious component}, because those controls directly absorb $\delta_t \cdot f(\text{pop}_i)$.
+  \item \textit{The DID estimate should be proportional to the size gap across thresholds}. A meta-regression of the DID estimate on the log-population gap confirms this, with $R^2 = 0.92$ in Italy and $R^2 = 0.96$ in France.
+\end{enumerate}
+
+The meta-regression supporting prediction~4 fits 197 placebo cutoffs from 1,000 to 50,000 in steps of 250:
+%
+\begin{equation}
+  \widehat{\text{DID}} = \underset{(0.0004)}{0.0046} + \underset{(0.0001)}{0.0057} \times \text{log-pop gap},
+  \qquad R^2 = 0.92
+  \label{eq:logpop}
+\end{equation}
+%
+where the figures in parentheses are heteroskedasticity-consistent standard errors. At the actual reform threshold (5,000), the mean log-pop gap is 2.10 (control communes are 8.2$\times$ larger on average), so the fitted line predicts a spurious DID of $0.0046 + 0.0057 \times 2.10 = 0.0166$ against an observed Cremaschi-style estimate of 0.0154---a 7\% discrepancy. The decomposition therefore not only predicts the qualitative pattern of the placebo sweep but quantitatively reproduces the headline number from the size-gradient mechanism alone. The corresponding French scatter (Figure~\ref{fig:scatter_fr}) yields $R^2 = 0.96$.
+
+\section{Formal RD tests of compliance at the threshold}
+\label{app:compliance_rd}
+
+Section~4.2 of the main paper presents Figure~7 (\texttt{fig:compliance\_gradient}), showing that compliance with the joint-service-delivery mandate is a continuous function of population, with no visible jump at the 5,000-inhabitant threshold (3,000 for mountain communes). Table~\ref{tab:compliance_rd} reports formal local-linear regression-discontinuity estimates at the cutoff for each of the nine compliance measures shown in that figure: Ministry-registry post-2010 \textit{unione} membership and the eight Article~14 fundamental-function associated-delivery indicators (OpenCivitas 2015). Each is estimated via \texttt{rdrobust} with degree-1 polynomial, triangular kernel, and MSE-optimal bandwidth.
+
+\input{output/tables/italy/tab_compliance_rd}
+
+Eight of the nine point estimates fail to reject the null of no discontinuity at the conventional 5\% level. The one significant estimate at $p < 0.05$ is local police ($-0.110$, robust $p = 0.026$); this estimate does not survive a Bonferroni correction for nine tests ($|t|$ threshold $\approx 2.77$, while $|t|$ here is $\approx 2.39$). The formal tests confirm the visual reading of Figure~7: compliance behaviour does not exhibit a discontinuity at the legal cutoff.
+
+\subsection{Extension to reweighted estimators}
+\label{si:reweighted}
+
+The same logic applies to any DID estimator that uses weighted group means. Let $w_i^T$ and $w_i^C$ denote nonnegative weights on treated and control units, each summing to one. Substituting~\eqref{eq:dgp_app} into the weighted DID and canceling fixed effects, the spurious component under the null of no treatment effect (superscript~$0$) is:
+%
+\begin{align}
+  \beta^{\,0}(W)
+  &= (\delta_{\text{post}} - \delta_{\text{pre}}) \;\cdot\;
+     \Bigl[\textstyle\sum_{i:T_i=1} w_i^T f(\text{pop}_i) - \sum_{i:T_i=0} w_i^C f(\text{pop}_i)\Bigr].
+  \label{eq:weighted_bias}
+\end{align}
+%
+This is the weighted analogue of~\eqref{eq:decomp_app}. Reweighting changes only the second term---the weighted size gap---but does not remove the omitted-variable problem.
+
+\paragraph{Matching (MTWFE).} Matching is a special case of~\eqref{eq:weighted_bias} in which the control weights $w_i^C$ are chosen to balance pre-treatment covariates. Matching can shrink the weighted size gap, but it cannot eliminate it (absent model-based extrapolation) when treatment is defined by a population cutoff: if $T_i = \mathbf{1}(\text{pop}_i < c)$, all treated units lie below $c$ and all controls above it, so the weighted treated mean of $f(\text{pop}_i)$ remains strictly below the weighted control mean for any weights.
+
+Empirically, Mahalanobis matching narrows the mean population gap from 16,250 to 4,552 (Table~6 of the main paper). The matched estimate is smaller than TWFE (0.004 vs.\ 0.015) but remains significant; adding $\log(\text{pop}) \times$ year controls reverses it to $-$0.007 ($p < 0.01$).
+
+\paragraph{Synthetic DID (SDID).} SDID chooses unit weights $\omega_i$ and time weights $\lambda_t$ to reproduce the treated group's pre-treatment outcome path. Under~\eqref{eq:dgp_app}, the spurious component is:
+%
+\begin{align}
+  \beta^{\,0}_{\text{SDID}}
+  &= \Bigl(\bar\delta_{\text{post}} - \textstyle\sum_{t \in \text{pre}} \lambda_t\, \delta_t\Bigr)
+     \;\cdot\;
+     \Bigl(\overline{f(\text{pop})}_{T=1} - \textstyle\sum_{i:T_i=0} \omega_i\, f(\text{pop}_i)\Bigr),
+  \label{eq:sdid_bias}
+\end{align}
+%
+where $\bar\delta_{\text{post}}$ is the average post-treatment gradient. A constant gradient ($\delta_t = \delta$) zeros the first term---but a constant gradient generates no DID bias in the first place, since $\delta \cdot f(\text{pop}_i)$ is absorbed by municipality fixed effects. SDID eliminates the bias exactly when the bias is already zero.
+
+When the gradient steepens, pre-period balance does not guarantee post-period balance. The weights that matched $\delta_{\text{pre}} \cdot f(\text{pop}_i)$ will not match $\delta_{\text{post}} \cdot f(\text{pop}_i)$ unless they also balance $f(\text{pop}_i)$ itself---which is impossible when treatment is assigned by a population cutoff. Empirically, SDID's unit weights $\omega$ close almost none of the population gap (at the 5,000 cutoff, the weighted-control log-pop gap is $-2.18$ versus TWFE's $-2.19$; within 1\% across all twenty placebo cutoffs). However, SDID's \textit{time} weights $\lambda_t$ partially neutralise the first factor in~\eqref{eq:sdid_bias}: when the pre-period gradient evolves smoothly, $\sum_t \lambda_t \,\delta_t$ approximates $\bar\delta_{\text{post}}$ and the time-weighted bracket shrinks. The growing population gap is then multiplied by a small number at every cutoff, leaving a residual estimate that stays near $+0.014$ across the placebo grid rather than scaling with the cutoff the way TWFE's does. The flat SDID placebo therefore reflects partial protection from the gradient mechanism, not closure of the population gap that drives the bias.
+
+\subsection{What causes the gradient?}
+\label{si:mediation}
+
+One might object that the size gradient is not a primitive confound but is \textit{caused} by observable covariates---selective outmigration of educated residents, demographic aging, declining labor markets, or pre-existing attitudes differentially activated by salient events. If the gradient is fully mediated by matchable covariates, proper matching should eliminate it.
+
+The formal response is that $f(\text{pop}_i)$ in~\eqref{eq:dgp_app} need not represent a causal effect of population. It can denote any size-linked score whose electoral relevance changes over time. The bias formula~\eqref{eq:weighted_bias} holds regardless of what causes the gradient---its microfoundation is irrelevant to the identification failure. But matching on \textit{baseline} covariate values does not absorb \textit{changes} in those covariates. If brain drain from small municipalities is accelerating, then 2008 education levels do not predict 2018 education levels within population strata. And if the gradient partly reflects attitudes---such as distrust of institutions---whose electoral salience changes over time, matching on their baseline levels faces the same problem. In principle, sufficiently rich time-varying covariate data could absorb the gradient for some of these channels, but the identification failure persists as long as any component remains uncontrolled.
+
+Table~\ref{tab:covariate_mediation} tests this. Adding year-specific slopes for the six covariates used in Mahalanobis matching (population, foreign-born share, over-65 share, mean income, university education share, and maximum altitude) reduces the estimate from 0.015 to 0.006---the covariates capture roughly 60\% of the gradient but leave a highly significant residual ($p < 0.001$). Adding $\log(\text{pop}) \times$ year alone eliminates the estimate entirely ($-$0.000, $p = 0.78$). The size gradient captures confounding that the matched covariates do not.
+
+\input{output/tables/italy/tab_covariate_mediation}
+
+The gradient itself cannot be a consequence of the reform: Figure~1 of the main paper shows the slope steepening from 2001 onward, well before the 2010 reform, and the same pattern appears in France where no comparable reform exists (Figure~2 of the main paper).
+
+\bibliographystyle{apalike}
+\bibliography{references}
+
+\end{document}

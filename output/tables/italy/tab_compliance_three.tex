@@ -1,0 +1,43 @@
+\begin{table}[!htbp]
+  \centering
+  \begin{threeparttable}
+    \caption{Pooled compliance ATT estimates across aggregate and single-function measures}
+    \label{tab:compliance_three}
+    \begin{tabular*}{0.85\linewidth}{@{\extracolsep{\fill}}lcS@{}}
+      \toprule
+      Compliance measure & $N$ treated & {MTWFE} \\
+      \midrule
+      \multicolumn{3}{l}{\textit{Aggregate measures}} \\
+      Post-2010 \textit{unione} (Ministry) & 1,193 & 0.000 \\
+      & & {(0.002)} \\
+      \addlinespace
+      8-of-8 functions $\geq$ 4 (OpenCivitas) & 891 & 0.001 \\
+      & & {(0.002)} \\
+      \addlinespace
+      6-of-8 functions $\geq$ 4 (OpenCivitas) & 1,442 & -0.000 \\
+      & & {(0.002)} \\
+      \midrule
+      \multicolumn{3}{l}{\textit{Individual Article 14 functions (OpenCivitas)}} \\
+      Social services & 2,427 & 0.001 \\
+      & & {(0.002)} \\
+      Local police & 1,450 & 0.006 \\
+      & & {(0.002)} \\
+      Waste collection & 1,418 & -0.008 \\
+      & & {(0.002)} \\
+      Education (any sub-function) & 1,281 & 0.000 \\
+      & & {(0.002)} \\
+      Territorial planning & 1,097 & 0.002 \\
+      & & {(0.002)} \\
+      Tax collection & 455 & -0.001 \\
+      & & {(0.003)} \\
+      Civil registry & 396 & 0.000 \\
+      & & {(0.003)} \\
+      Road maintenance & 278 & 0.001 \\
+      & & {(0.003)} \\
+      \bottomrule
+    \end{tabular*}
+    \begin{tablenotes}[flushleft]\small
+      \item \textit{Notes:} Pooled (Cremaschi-treated) stratum, panel 2001--2018. The post-2010 \textit{unione} flag indicates membership in a consortium constituted after 31~May~2010 (Ministry registry). The OpenCivitas aggregate measures dichotomise the count of Article~14 fundamental functions shared in 2015 at 4-of-8 (8-function) or 4-of-6 (excluding tax and registry). Single-function rows use the OpenCivitas 2015 binary indicator for that function; education pools six sub-functions into ``shares at least one.'' MTWFE: Mahalanobis matching with replacement on the seven baseline covariates Cremaschi et al.\ use, then TWFE on the matched sample \citep{ho2007}, with municipality and year fixed effects and clustered SEs. Mean absolute standardised differences across the seven covariates fall from 0.17--0.31 pre-match to 0.017--0.037 post-match.
+    \end{tablenotes}
+  \end{threeparttable}
+\end{table}
