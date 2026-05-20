@@ -246,7 +246,7 @@ The OpenCivitas function-level flags offer a looser, self-reported measure of th
 
 For sub-threshold municipalities, associated delivery reaches roughly 70\% for social services, 55\% for garbage and education, 35\% for local police, 25\% for post-2010 \textit{unione} membership and territorial planning, and only about 10\% for civil registry, road maintenance, and tax collection.
 
-More strikingly, the bin means trace a continuous pattern through the legal threshold in every panel: there is no visible jump in compliance behaviour at $x = 0$. Where there is a gradient, it runs through the cutoff continuously; where compliance is nearly flat, it remains so on both sides.\footnote{Formal local-linear RD tests at the threshold confirm the visual reading: eight of the nine compliance indicators yield discontinuity estimates indistinguishable from zero, and the lone $p < 0.05$ result (local police, $-0.110$) does not survive Bonferroni for nine tests. See Appendix~C.} Service-sharing follows a continuous gradient through the size distribution, not a sharp policy discontinuity at the legal threshold.
+More strikingly, the bin means trace a continuous pattern through the legal threshold in every panel: there is no visible jump in compliance behaviour at $x = 0$. Where there is a gradient, it runs through the cutoff continuously; where compliance is nearly flat, it remains so on both sides. Service-sharing follows a continuous gradient through the size distribution, not a sharp policy discontinuity at the legal threshold.
 
 \subsection{Did it worsen public service delivery?}
 \label{sec:service_delivery}
@@ -385,15 +385,6 @@ The meta-regression supporting prediction~4 fits 197 placebo cutoffs from 1,000 
 \end{equation}
 %
 where the figures in parentheses are heteroskedasticity-consistent standard errors. At the actual reform threshold (5,000), the mean log-pop gap is 2.10 (control communes are 8.2$\times$ larger on average), so the fitted line predicts a spurious DID of $0.0046 + 0.0057 \times 2.10 = 0.0166$ against an observed Cremaschi-style estimate of 0.0154---a 7\% discrepancy. The decomposition therefore not only predicts the qualitative pattern of the placebo sweep but quantitatively reproduces the headline number from the size-gradient mechanism alone. The corresponding French scatter (Figure~\ref{fig:scatter_fr}) yields $R^2 = 0.96$.
-
-\section{Formal RD tests of compliance at the threshold}
-\label{app:compliance_rd}
-
-Section~4.2 of the main paper presents Figure~7 (\texttt{fig:compliance\_gradient}), showing that compliance with the joint-service-delivery mandate is a continuous function of population, with no visible jump at the 5,000-inhabitant threshold (3,000 for mountain communes). Table~\ref{tab:compliance_rd} reports formal local-linear regression-discontinuity estimates at the cutoff for each of the nine compliance measures shown in that figure: Ministry-registry post-2010 \textit{unione} membership and the eight Article~14 fundamental-function associated-delivery indicators (OpenCivitas 2015). Each is estimated via \texttt{rdrobust} with degree-1 polynomial, triangular kernel, and MSE-optimal bandwidth.
-
-\input{output/tables/italy/tab_compliance_rd}
-
-Eight of the nine point estimates fail to reject the null of no discontinuity at the conventional 5\% level. The one significant estimate at $p < 0.05$ is local police ($-0.110$, robust $p = 0.026$); this estimate does not survive a Bonferroni correction for nine tests ($|t|$ threshold $\approx 2.77$, while $|t|$ here is $\approx 2.39$). The formal tests confirm the visual reading of Figure~7: compliance behaviour does not exhibit a discontinuity at the legal cutoff.
 
 \subsection{Extension to reweighted estimators}
 \label{si:reweighted}

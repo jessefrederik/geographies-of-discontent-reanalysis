@@ -87,7 +87,7 @@ The `Makefile` orchestrates the full pipeline. Running `make` executes the steps
 | Italy figures | `code/italy/02_figure_italy_gradient.R`, `06_figure_bandwidth_sweep.R`, `07_figure_placebo_sweep.R` | `fig_logpop_facet.pdf`, `fig_bandwidth_sweep.pdf`, `fig_placebo_sweep.pdf` |
 | France pipeline | `code/france/run_all.R` (chains scripts `00`–`05`) | `data_processed/france/final/panel_commune.csv`, `tab_temporal_fr.tex`, `fig_logpop_facet_fr.pdf`, `placebo_scatter_fr.pdf` |
 | France sweeps | `code/france/06_figure_bandwidth_sweep_fr.R`, `07_figure_placebo_sweep_fr.R` | `fig_bandwidth_sweep_fr.pdf`, `fig_placebo_sweep_fr.pdf` |
-| Italy mechanism (§4) | `code/italy_mechanism/build_post2010_union_indicator.R`, `00_build_crosswalk.R`, then `fig_union_formation_did.R`, `fig_compliance_gradient_no_rd.R`, `fig_service_diff_delta_no_rd.R`, `fig_compliance_gradient.R` | `fig_union_formation_did.pdf`, `fig_compliance_gradient_no_rd.pdf`, `fig_service_diff_delta_no_rd.pdf`, `tab_compliance_rd.tex` |
+| Italy mechanism (§4) | `code/italy_mechanism/build_post2010_union_indicator.R`, `00_build_crosswalk.R`, then `fig_union_formation_did.R`, `fig_compliance_gradient_no_rd.R`, `fig_service_diff_delta_no_rd.R` | `fig_union_formation_did.pdf`, `fig_compliance_gradient_no_rd.pdf`, `fig_service_diff_delta_no_rd.pdf` |
 | LaTeX compile | `pdflatex` ×3 + `bibtex` (per document) | `size_gradient_report.pdf`, `size_gradient_report_appendix.pdf`, `size_gradient_report_with_appendix.pdf` |
 
 ### Exhibit-to-code mapping
@@ -115,7 +115,6 @@ Appendix (Online Supporting Information):
 | Appendix exhibit | Generated file | Source code |
 |---|---|---|
 | Table (covariate mediation) | `output/tables/italy/tab_covariate_mediation.tex` | `code/italy/01_analysis_italy.R` |
-| Table (RD compliance tests) | `output/tables/italy/tab_compliance_rd.tex` | `code/italy_mechanism/fig_compliance_gradient.R` |
 | Table (France temporal placebo) | `output/tables/france/tab_temporal_fr.tex` | `code/france/04_analysis.R` |
 | Figure (France placebo scatter) | `output/figures/france/placebo_scatter_fr.pdf` | `code/france/05_figures.R` |
 
