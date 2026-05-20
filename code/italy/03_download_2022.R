@@ -7,7 +7,8 @@ dir.create("data_raw", showWarnings = FALSE)
 # 2022 Camera dei Deputati results (municipality level, with ISTAT codes)
 # Source: https://github.com/ondata/elezioni-politiche-2022
 url_2022 <- "https://raw.githubusercontent.com/ondata/elezioni-politiche-2022/main/affluenza-risultati/dati/Eligendo/processing/Politiche2022_Scrutini_Camera_Italia.csv"
-dest_2022 <- "data_raw/camera_2022_eligendo.csv"
+dir.create("data_raw/italy/elections_2022", recursive = TRUE, showWarnings = FALSE)
+dest_2022 <- "data_raw/italy/elections_2022/camera_2022_eligendo.csv"
 
 if (!file.exists(dest_2022)) {
   download.file(url_2022, dest_2022)

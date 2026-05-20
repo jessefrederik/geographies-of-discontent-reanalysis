@@ -1,5 +1,12 @@
 .PHONY: all clean paper with-appendix appendix
 
+# Create output directories at parse time (R scripts write into these
+# but do not all create them themselves).
+$(shell mkdir -p output/figures/italy output/figures/france \
+                 output/tables/italy output/tables/france \
+                 output/csvs/italy output/csvs/france \
+                 data_processed/italy data_processed/france)
+
 all: size_gradient_report.pdf size_gradient_report_appendix.pdf size_gradient_report_with_appendix.pdf
 
 # Convenience aliases
@@ -13,8 +20,10 @@ data_processed/italy/electoral_panel_extended.csv: code/italy/03_download_2022.R
 	Rscript code/italy/04_build_2022.R
 	Rscript code/italy/05_extend_panel.R
 
-# --- Italy analysis: Tables 1, 2, 3, 6, 7, 10; placebo scatter --------------
-output/tables/italy/tab_rd.tex output/figures/italy/placebo_scatter.pdf: code/italy/01_analysis_italy.R data_processed/italy/electoral_panel_extended.csv
+# --- Italy analysis: tab_temporal, tab_gradient, tab_covariate_mediation -----
+# (plus placebo_scatter.pdf and other tables that ship to output/ but are not
+# referenced by the paper itself).
+output/tables/italy/tab_temporal.tex output/tables/italy/tab_gradient.tex output/tables/italy/tab_covariate_mediation.tex output/figures/italy/placebo_scatter.pdf: code/italy/01_analysis_italy.R data_processed/italy/electoral_panel_extended.csv
 	Rscript code/italy/01_analysis_italy.R
 
 # --- Italy gradient (Figure 1) ----------------------------------------------
@@ -29,8 +38,10 @@ output/figures/italy/fig_bandwidth_sweep.pdf: code/italy/06_figure_bandwidth_swe
 output/figures/italy/fig_placebo_sweep.pdf: code/italy/07_figure_placebo_sweep.R
 	Rscript code/italy/07_figure_placebo_sweep.R
 
-# --- France analysis: Tables 4, 5, 9; Figures 2 & 6 (~200MB download) -------
-output/tables/france/tab_narrowband_fr.tex output/figures/france/placebo_scatter_fr.pdf: code/france/run_all.R code/france/00_download.R code/france/01_parse_elections.R code/france/02_population.R code/france/03_harmonize_panel.R code/france/04_analysis.R code/france/05_figures.R
+# --- France pipeline: panel build + tab_temporal_fr + scatter (~200MB DL) ----
+# Produces tab_temporal_fr.tex (appendix), placebo_scatter_fr.pdf (appendix),
+# fig_logpop_facet_fr.pdf (main paper), and data_processed/france/final/panel_commune.csv.
+output/tables/france/tab_temporal_fr.tex output/figures/france/placebo_scatter_fr.pdf output/figures/france/fig_logpop_facet_fr.pdf data_processed/france/final/panel_commune.csv: code/france/run_all.R code/france/00_download.R code/france/01_parse_elections.R code/france/02_population.R code/france/03_harmonize_panel.R code/france/04_analysis.R code/france/05_figures.R
 	Rscript code/france/run_all.R
 
 # --- France bandwidth & placebo sweep figures -------------------------------
@@ -40,70 +51,104 @@ output/figures/france/fig_bandwidth_sweep_fr.pdf: code/france/06_figure_bandwidt
 output/figures/france/fig_placebo_sweep_fr.pdf: code/france/07_figure_placebo_sweep_fr.R data_processed/france/final/panel_commune.csv
 	Rscript code/france/07_figure_placebo_sweep_fr.R
 
-# --- Mechanism analysis: Table 8, Figures 3, 4, 5 ---------------------------
-# Builds the post-2010 unione indicator and OpenCivitas crosswalk from the
-# raw Ministry registry and OpenCivitas FC questionnaires in data_raw/italy/.
-output/tables/italy/tab_compliance_three.tex output/figures/italy/fig_union_formation_did.pdf output/figures/italy/fig_compliance_gradient_no_rd.pdf output/figures/italy/fig_service_diff_delta_no_rd.pdf: code/italy_mechanism/run_all.R data_processed/italy/electoral_panel_extended.csv
-	Rscript code/italy_mechanism/run_all.R
+# --- Italy mechanism: preprocessors ------------------------------------------
+# Build the post-2010 unione membership indicator from the Ministry registry.
+data_processed/italy/post2010_union_indicator.csv: \
+		code/italy_mechanism/build_post2010_union_indicator.R \
+		data_raw/italy/ministero_interno/unioni_comuni_ministero_2020.csv
+	Rscript code/italy_mechanism/build_post2010_union_indicator.R
 
-# --- Compile paper (two passes for cross-references) -------------------------
-size_gradient_report.pdf: size_gradient_report.tex references.bib \
-		output/tables/italy/tab_rd.tex \
-		output/tables/italy/tab_compliance_three.tex \
-		output/figures/italy/fig_logpop_facet.pdf \
-		output/figures/italy/fig_bandwidth_sweep.pdf \
-		output/figures/italy/fig_placebo_sweep.pdf \
-		output/figures/italy/fig_union_formation_did.pdf \
-		output/figures/italy/fig_compliance_gradient_no_rd.pdf \
-		output/figures/italy/fig_service_diff_delta_no_rd.pdf \
-		output/tables/france/tab_narrowband_fr.tex \
-		output/figures/france/placebo_scatter_fr.pdf \
-		output/figures/france/fig_logpop_facet_fr.pdf \
-		output/figures/france/fig_bandwidth_sweep_fr.pdf \
-		output/figures/france/fig_placebo_sweep_fr.pdf
-	pdflatex size_gradient_report.tex
+# Build the OpenCivitas <-> ISTAT id08 crosswalk.
+data_processed/italy/opencivitas_panel_crosswalk.csv: \
+		code/italy_mechanism/00_build_crosswalk.R \
+		data_raw/italy/opencivitas/Metadati_Enti_2022.xlsx
+	Rscript code/italy_mechanism/00_build_crosswalk.R
+
+# --- Italy mechanism: paper exhibits (Section 4 + Appendix C) ----------------
+# Figure 3: union-formation DID
+output/figures/italy/fig_union_formation_did.pdf: \
+		code/italy_mechanism/fig_union_formation_did.R \
+		data_processed/italy/post2010_union_indicator.csv
+	Rscript code/italy_mechanism/fig_union_formation_did.R
+
+# Figure 4: compliance gradient by population (no-RD variant used in the paper)
+output/figures/italy/fig_compliance_gradient_no_rd.pdf: \
+		code/italy_mechanism/fig_compliance_gradient_no_rd.R \
+		data_processed/italy/post2010_union_indicator.csv \
+		data_processed/italy/opencivitas_panel_crosswalk.csv
+	Rscript code/italy_mechanism/fig_compliance_gradient_no_rd.R
+
+# Figure 5: service-quality change
+output/figures/italy/fig_service_diff_delta_no_rd.pdf: \
+		code/italy_mechanism/fig_service_diff_delta_no_rd.R \
+		data_raw/italy/cremaschi_replication/service_dataset.dta
+	Rscript code/italy_mechanism/fig_service_diff_delta_no_rd.R
+
+# Appendix Table C.1: RD compliance tests
+# (Script is named fig_compliance_gradient.R for historical reasons; it
+#  writes tab_compliance_rd.tex along with its companion figure.)
+output/tables/italy/tab_compliance_rd.tex: \
+		code/italy_mechanism/fig_compliance_gradient.R \
+		data_processed/italy/post2010_union_indicator.csv \
+		data_processed/italy/opencivitas_panel_crosswalk.csv
+	Rscript code/italy_mechanism/fig_compliance_gradient.R
+
+# NOTE: Table 8 (output/tables/italy/tab_compliance_three.tex) is hand-
+# maintained and shipped in the repo. It is not generated by any R script.
+
+# =============================================================================
+# PDF compilation
+# =============================================================================
+
+# Prerequisites that are common across the three documents
+PAPER_DEPS = output/tables/italy/tab_temporal.tex \
+             output/tables/italy/tab_gradient.tex \
+             output/tables/italy/tab_compliance_three.tex \
+             output/figures/italy/fig_logpop_facet.pdf \
+             output/figures/italy/fig_bandwidth_sweep.pdf \
+             output/figures/italy/fig_placebo_sweep.pdf \
+             output/figures/italy/placebo_scatter.pdf \
+             output/figures/italy/fig_union_formation_did.pdf \
+             output/figures/italy/fig_compliance_gradient_no_rd.pdf \
+             output/figures/italy/fig_service_diff_delta_no_rd.pdf \
+             output/figures/france/fig_logpop_facet_fr.pdf \
+             output/figures/france/fig_bandwidth_sweep_fr.pdf \
+             output/figures/france/fig_placebo_sweep_fr.pdf
+
+APPENDIX_DEPS = output/tables/france/tab_temporal_fr.tex \
+                output/tables/italy/tab_compliance_rd.tex \
+                output/tables/italy/tab_covariate_mediation.tex \
+                output/figures/france/placebo_scatter_fr.pdf
+
+# Main paper
+size_gradient_report.pdf: size_gradient_report.tex references.bib $(PAPER_DEPS)
+	pdflatex -interaction=nonstopmode -halt-on-error size_gradient_report.tex
 	bibtex size_gradient_report
-	pdflatex size_gradient_report.tex
-	pdflatex size_gradient_report.tex
+	pdflatex -interaction=nonstopmode -halt-on-error size_gradient_report.tex
+	pdflatex -interaction=nonstopmode -halt-on-error size_gradient_report.tex
 
-# --- Standalone appendix (Online Supporting Information edition) -------------
-size_gradient_report_appendix.pdf: size_gradient_report_appendix.tex references.bib \
-		output/tables/france/tab_temporal_fr.tex \
-		output/figures/france/placebo_scatter_fr.pdf \
-		output/tables/italy/tab_compliance_rd.tex \
-		output/tables/italy/tab_covariate_mediation.tex
-	pdflatex size_gradient_report_appendix.tex
+# Standalone appendix (Online Supporting Information edition)
+size_gradient_report_appendix.pdf: size_gradient_report_appendix.tex references.bib $(APPENDIX_DEPS)
+	pdflatex -interaction=nonstopmode -halt-on-error size_gradient_report_appendix.tex
 	bibtex size_gradient_report_appendix
-	pdflatex size_gradient_report_appendix.tex
-	pdflatex size_gradient_report_appendix.tex
+	pdflatex -interaction=nonstopmode -halt-on-error size_gradient_report_appendix.tex
+	pdflatex -interaction=nonstopmode -halt-on-error size_gradient_report_appendix.tex
 
-# --- Combined edition (main paper + appendix as a single document) ----------
+# Combined edition (main paper + appendix as a single document)
 size_gradient_report_with_appendix.pdf: size_gradient_report_with_appendix.tex references.bib \
-		output/tables/italy/tab_rd.tex \
-		output/tables/italy/tab_compliance_three.tex \
-		output/figures/italy/fig_logpop_facet.pdf \
-		output/figures/italy/fig_bandwidth_sweep.pdf \
-		output/figures/italy/fig_placebo_sweep.pdf \
-		output/figures/italy/fig_union_formation_did.pdf \
-		output/figures/italy/fig_compliance_gradient_no_rd.pdf \
-		output/figures/italy/fig_service_diff_delta_no_rd.pdf \
-		output/tables/france/tab_narrowband_fr.tex \
-		output/tables/france/tab_temporal_fr.tex \
-		output/figures/france/placebo_scatter_fr.pdf \
-		output/figures/france/fig_logpop_facet_fr.pdf \
-		output/figures/france/fig_bandwidth_sweep_fr.pdf \
-		output/figures/france/fig_placebo_sweep_fr.pdf \
-		output/tables/italy/tab_compliance_rd.tex \
-		output/tables/italy/tab_covariate_mediation.tex
-	pdflatex size_gradient_report_with_appendix.tex
+		$(PAPER_DEPS) $(APPENDIX_DEPS)
+	pdflatex -interaction=nonstopmode -halt-on-error size_gradient_report_with_appendix.tex
 	bibtex size_gradient_report_with_appendix
-	pdflatex size_gradient_report_with_appendix.tex
-	pdflatex size_gradient_report_with_appendix.tex
+	pdflatex -interaction=nonstopmode -halt-on-error size_gradient_report_with_appendix.tex
+	pdflatex -interaction=nonstopmode -halt-on-error size_gradient_report_with_appendix.tex
 
 clean:
 	rm -f size_gradient_report.{pdf,aux,log,out,synctex.gz,bbl,blg,fls,fdb_latexmk,toc}
 	rm -f size_gradient_report_appendix.{pdf,aux,log,out,synctex.gz,bbl,blg,fls,fdb_latexmk,toc}
 	rm -f size_gradient_report_with_appendix.{pdf,aux,log,out,synctex.gz,bbl,blg,fls,fdb_latexmk,toc}
-	rm -f output/tables/italy/*.tex output/figures/italy/*.{pdf,png}
+	# Delete generated tables in output/tables/italy/ but preserve the
+	# hand-maintained tab_compliance_three.tex (Table 8).
+	find output/tables/italy -name '*.tex' ! -name 'tab_compliance_three.tex' -delete 2>/dev/null || true
+	rm -f output/figures/italy/*.{pdf,png}
 	rm -f output/tables/france/*.tex output/figures/france/*.{pdf,png}
 	rm -f output/csvs/italy/*.csv output/csvs/france/*.csv

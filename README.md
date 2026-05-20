@@ -78,44 +78,48 @@ install.packages(c("haven", "fixest", "MatchIt", "data.table",
 
 ## Pipeline
 
-The `Makefile` orchestrates the full pipeline. Running `make` executes these steps in dependency order:
+The `Makefile` orchestrates the full pipeline. Running `make` executes the steps below in dependency order. Inspect with `make -n` to see commands without running them.
 
-| Step | Command | Produces |
-|------|---------|----------|
-| 1 | `Rscript code/italy/03_download_2022.R` | Downloads 2022 Italian election data |
-| 2 | `Rscript code/italy/04_build_2022.R` | Parses 2022 data to municipality level |
-| 3 | `Rscript code/italy/05_extend_panel.R` | `data_processed/italy/electoral_panel_extended.csv` |
-| 4 | `Rscript code/italy/01_analysis_italy.R` | Italy tables (.tex), inline estimates |
-| 5 | `Rscript code/italy/02_figure_italy_gradient.R` | Figure 1 (Italy gradient) |
-| 6 | `Rscript code/italy/encompassing_test.R` | Encompassing-model F-statistics (in §3.1 footnote) |
-| 7 | `Rscript code/france/run_all.R` | France tables (.tex), Figures 2 & 6 |
-| 8 | `Rscript code/italy_mechanism/run_all.R` | Mechanism analysis: Table 8 + Figures 3, 4, 5 |
-| 9 | `pdflatex size_gradient_report.tex` (×2) | **`size_gradient_report.pdf`** |
-
-Step 8 (`code/italy_mechanism/run_all.R`) runs the compliance ATT machinery and produces the union-formation figure, compliance-gradient figure, service-delta figure, and per-function ATT estimates. See `code/italy_mechanism/README.md` for sub-step details.
+| Stage | Scripts | Produces |
+|---|---|---|
+| Italy panel build | `code/italy/03_download_2022.R` → `04_build_2022.R` → `05_extend_panel.R` | `data_processed/italy/electoral_panel_extended.csv` (extends Cremaschi panel through 2022) |
+| Italy main analysis | `code/italy/01_analysis_italy.R` | Italy tables (`tab_temporal`, `tab_gradient`, `tab_covariate_mediation`) and `placebo_scatter.pdf` |
+| Italy figures | `code/italy/02_figure_italy_gradient.R`, `06_figure_bandwidth_sweep.R`, `07_figure_placebo_sweep.R` | `fig_logpop_facet.pdf`, `fig_bandwidth_sweep.pdf`, `fig_placebo_sweep.pdf` |
+| France pipeline | `code/france/run_all.R` (chains scripts `00`–`05`) | `data_processed/france/final/panel_commune.csv`, `tab_temporal_fr.tex`, `fig_logpop_facet_fr.pdf`, `placebo_scatter_fr.pdf` |
+| France sweeps | `code/france/06_figure_bandwidth_sweep_fr.R`, `07_figure_placebo_sweep_fr.R` | `fig_bandwidth_sweep_fr.pdf`, `fig_placebo_sweep_fr.pdf` |
+| Italy mechanism (§4) | `code/italy_mechanism/build_post2010_union_indicator.R`, `00_build_crosswalk.R`, then `fig_union_formation_did.R`, `fig_compliance_gradient_no_rd.R`, `fig_service_diff_delta_no_rd.R`, `fig_compliance_gradient.R` | `fig_union_formation_did.pdf`, `fig_compliance_gradient_no_rd.pdf`, `fig_service_diff_delta_no_rd.pdf`, `tab_compliance_rd.tex` |
+| LaTeX compile | `pdflatex` ×3 + `bibtex` (per document) | `size_gradient_report.pdf`, `size_gradient_report_appendix.pdf`, `size_gradient_report_with_appendix.pdf` |
 
 ### Exhibit-to-code mapping
 
+Main paper:
+
 | Paper exhibit | Generated file | Source code |
 |---|---|---|
-| Table 1 (RD narrow-band) | `output/tables/italy/tab_rd.tex` | `code/italy/01_analysis_italy.R` |
 | Table 2 (temporal placebo) | `output/tables/italy/tab_temporal.tex` | `code/italy/01_analysis_italy.R` |
-| Table 3 (placebo thresholds) | `output/tables/italy/tab_placebo.tex` | `code/italy/01_analysis_italy.R` |
-| Table 4 (France narrow-band) | `output/tables/france/tab_narrowband_fr.tex` | `code/france/04_analysis.R` |
-| Table 5 (France placebo thresholds) | `output/tables/france/tab_placebo_fr.tex` | `code/france/04_analysis.R` |
 | Table 6 (gradient controls) | `output/tables/italy/tab_gradient.tex` | `code/italy/01_analysis_italy.R` |
-| Table 7 (above-5k subsample) | `output/tables/italy/tab_above5k.tex` | `code/italy/01_analysis_italy.R` |
-| Table 8 (compliance ATT) | `output/tables/italy/tab_compliance_three.tex` | `code/italy_mechanism/05_att_count_fundamental.R`, `code/italy_mechanism/06_att_post2010_union.R`, `code/italy_mechanism/08_att_single_function.R` |
-| Table 9 (France temporal placebo) | `output/tables/france/tab_temporal_fr.tex` | `code/france/04_analysis.R` |
-| Table 10 (covariate mediation) | `output/tables/italy/tab_covariate_mediation.tex` | `code/italy/01_analysis_italy.R` |
+| Table 8 (compliance ATT) | `output/tables/italy/tab_compliance_three.tex` | **hand-maintained** (shipped in repo) |
 | Figure 1 (Italy gradient) | `output/figures/italy/fig_logpop_facet.pdf` | `code/italy/02_figure_italy_gradient.R` |
 | Figure 2 (France gradient) | `output/figures/france/fig_logpop_facet_fr.pdf` | `code/france/05_figures.R` |
 | Figure 3 (union formation) | `output/figures/italy/fig_union_formation_did.pdf` | `code/italy_mechanism/fig_union_formation_did.R` |
 | Figure 4 (compliance gradient) | `output/figures/italy/fig_compliance_gradient_no_rd.pdf` | `code/italy_mechanism/fig_compliance_gradient_no_rd.R` |
 | Figure 5 (service delta) | `output/figures/italy/fig_service_diff_delta_no_rd.pdf` | `code/italy_mechanism/fig_service_diff_delta_no_rd.R` |
-| Figure 6 (France placebo scatter) | `output/figures/france/placebo_scatter_fr.pdf` | `code/france/05_figures.R` |
+| Figure (bandwidth sweep, IT) | `output/figures/italy/fig_bandwidth_sweep.pdf` | `code/italy/06_figure_bandwidth_sweep.R` |
+| Figure (bandwidth sweep, FR) | `output/figures/france/fig_bandwidth_sweep_fr.pdf` | `code/france/06_figure_bandwidth_sweep_fr.R` |
+| Figure (placebo threshold sweep, IT) | `output/figures/italy/fig_placebo_sweep.pdf` | `code/italy/07_figure_placebo_sweep.R` |
+| Figure (placebo threshold sweep, FR) | `output/figures/france/fig_placebo_sweep_fr.pdf` | `code/france/07_figure_placebo_sweep_fr.R` |
+| Figure (placebo scatter, IT) | `output/figures/italy/placebo_scatter.pdf` | `code/italy/01_analysis_italy.R` |
 
-All table `.tex` files are standalone `\begin{table}…\end{table}` fragments, `\input{}`'d by `size_gradient_report.tex`. The bibliography is in `references.bib`.
+Appendix (Online Supporting Information):
+
+| Appendix exhibit | Generated file | Source code |
+|---|---|---|
+| Table (covariate mediation) | `output/tables/italy/tab_covariate_mediation.tex` | `code/italy/01_analysis_italy.R` |
+| Table (RD compliance tests) | `output/tables/italy/tab_compliance_rd.tex` | `code/italy_mechanism/fig_compliance_gradient.R` |
+| Table (France temporal placebo) | `output/tables/france/tab_temporal_fr.tex` | `code/france/04_analysis.R` |
+| Figure (France placebo scatter) | `output/figures/france/placebo_scatter_fr.pdf` | `code/france/05_figures.R` |
+
+All table `.tex` files are standalone `\begin{table}…\end{table}` fragments, `\input{}`'d by the LaTeX source. The `code/italy/01_analysis_italy.R` and `code/france/04_analysis.R` scripts also write additional tables (`tab_rd`, `tab_placebo`, `tab_above5k`, `tab_narrowband_fr`, `tab_placebo_fr`, …) into `output/tables/` that are not used by the current paper; these are byproducts of the analyses and left in place to preserve the script outputs as-is.
 
 ---
 
